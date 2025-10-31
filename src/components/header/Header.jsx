@@ -21,6 +21,8 @@ function Header() {
         return "Your Personal Space, Your Stories";
       case "/login":
         return "Welcome Back! Please Login";
+      case "/signup":
+        return "Create your account to get started.";
       default:
         return "";
     }

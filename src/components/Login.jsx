@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useForm } from "react-hook-form";
+import authService from "../appwrite/auth";
 import { login as authLogin } from "../store/authSlice";
 import { Button, Input, Logo, Popup, Loading } from "./index";
-import { useDispatch } from "react-redux";
-import authService from "../appwrite/auth";
-import { useForm } from "react-hook-form";
 
 function Login() {
   const navigate = useNavigate();
@@ -26,16 +26,12 @@ function Login() {
     setLoading(true);
     try {
       await authService.login({ email: data.email, password: data.password });
-
       await new Promise((resolve) => setTimeout(resolve, 500));
-
       const user = await authService.getCurrentUser();
       if (!user) throw new Error("Failed to get user after login");
 
       dispatch(authLogin({ name: user.name, email: user.email, $id: user.$id }));
-
       showPopup("Login successful!", "success");
-
       navigate("/all-posts");
     } catch (err) {
       console.error("Login error:", err);
@@ -47,24 +43,6 @@ function Login() {
       showPopup(message, "error");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      await authService.loginWithGoogle({ redirect: false });
-
-      const user = await authService.getCurrentUser();
-      if (user) {
-        dispatch(authLogin({ name: user.name, email: user.email, $id: user.$id }));
-        showPopup("Login successful via Google!", "success");
-        navigate("/all-posts");
-      } else {
-        showPopup("Google login initiated. Complete authentication in popup.", "info");
-      }
-    } catch (err) {
-      console.error("Google login failed:", err);
-      showPopup("Google sign-in failed. Please try again.", "error");
     }
   };
 
@@ -108,17 +86,6 @@ function Login() {
           />
           <Button type="submit" className="w-full font-medium py-2">Sign In</Button>
         </form>
-
-        <div className="flex items-center my-4">
-          <hr className="grow border-gray-300" />
-          <span className="mx-2 text-gray-400 text-sm">or</span>
-          <hr className="grow border-gray-300" />
-        </div>
-
-        <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center border border-gray-300 bg-white hover:bg-gray-100 py-2 rounded-lg transition gap-2">
-          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="w-5 h-5" />
-          <span className="text-sm font-medium">Continue with Google</span>
-        </button>
       </div>
     </div>
   );
