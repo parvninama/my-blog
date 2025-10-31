@@ -1,18 +1,15 @@
 import React, { useState } from "react";
-import dynamic from "next/dynamic";
+import { Editor } from "@tinymce/tinymce-react";
 import { Controller } from "react-hook-form";
-
-
-const Editor = dynamic(() => import("@tinymce/tinymce-react").then(mod => mod.Editor), {
-  ssr: false,
-});
 
 export default function RTE({ name, control, label }) {
   const [focused, setFocused] = useState(false);
 
   return (
     <div className="w-full mb-4">
-      {label && <label className="inline-block mb-1 pl-1 font-semibold">{label}</label>}
+      {label && (
+        <label className="inline-block mb-1 pl-1 font-semibold">{label}</label>
+      )}
 
       <div
         className={`border rounded-xl transition-colors duration-200 ${
@@ -39,7 +36,8 @@ export default function RTE({ name, control, label }) {
                   "undo redo | blocks | image | bold italic forecolor | " +
                   "alignleft aligncenter alignright alignjustify | " +
                   "bullist numlist outdent indent | removeformat | help",
-                content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                content_style:
+                  "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
               }}
               onEditorChange={onChange}
               onFocus={() => setFocused(true)}
