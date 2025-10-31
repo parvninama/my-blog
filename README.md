@@ -18,7 +18,7 @@ Whether you're a writer, reader, or creator — myBlog makes storytelling simple
 
 ## Website Preview
 
-You can checkout **MyBlog** from here : [MyBlog](https://myblog-app-cyan.vercel.app/) 
+You can checkout **MyBlog** from here : [MyBlog](https://my-blog-app-orcin.vercel.app/) 
 
 ---
 
