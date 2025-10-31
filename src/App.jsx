@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Client } from "appwrite";
 import authservice from './appwrite/auth.js';
 import { login, logout } from './store/authSlice.js';
-import { Header, Footer , Loading} from './components';
+import { Header, Footer, Loading } from './components';
 import { Outlet } from 'react-router-dom';
 import './App.css';
 
@@ -13,40 +13,57 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    authservice.getCurrentUser()
-      .then((userData) => {
+    const client = new Client()
+      .setEndpoint(import.meta.env.VITE_APPWRITE_URL)
+      .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+
+    const fetchUser = async () => {
+      try {
+        const userData = await authservice.getCurrentUser();
         if (userData) {
           setUser(userData);
-          dispatch(login({ userData }));
+          dispatch(login(userData));
         } else {
           setUser(null);
           dispatch(logout());
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.warn("Guest user, skipping login:", err);
         setUser(null);
         dispatch(logout());
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+
+    const unsubscribe = client.subscribe("account", (event) => {
+      console.log("Session event:", event);
+
+      if (event.events.includes("account.sessions.create")) {
+        fetchUser();
+      } else if (event.events.includes("account.sessions.delete")) {
+        setUser(null);
+        dispatch(logout());
+      }
+    });
+
+    return () => unsubscribe();
   }, [dispatch]);
 
-  if (loading) return <Loading/>;
+  if (loading) return <Loading />;
   if (!navigator.onLine) return <div>No internet connection</div>;
 
-
-return (
-  <div className="min-h-screen flex flex-col bg-gray-100 overflow-x-hidden">
-    <Header user={user} />
-
-    <main className="grow">
-      <Outlet context={{ user }} />
-    </main>
-
-    <Footer />
-  </div>
-);
-
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-100 overflow-x-hidden">
+      <Header user={user} />
+      <main className="grow">
+        <Outlet context={{ user }} />
+      </main>
+      <Footer />
+    </div>
+  );
 }
 
 export default App;
